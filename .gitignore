@@ -1,0 +1,4 @@
+bot_settings/skype_token.txt
+.idea/*
+.idea/.*
+__pycache__/*
