@@ -30,15 +30,12 @@ class ChatterSkype(ChatterBase):
         for key in self.chats_dict:
             val = self.chats_dict[key]
 
-            if type(val) is SkypeGroupChat:
-                if val.topic == chat_topic:
-                    chat_value: SkypeGroupChat = self.chats_dict[key]
-                    print('group chat {} found'.format(chat_topic))
-                    return chat_value
+            if type(val) is SkypeGroupChat and val.topic == chat_topic:
+                chat_value: SkypeGroupChat = self.chats_dict[key]
+                return chat_value
 
             if (type(val) is SkypeSingleChat) and chat_topic in key:
                 chat_value: SkypeSingleChat = self.chats_dict[key]
-                print('single chat {} found'.format(chat_topic))
                 return chat_value
 
         return self.sk.contacts.user(chat_topic).chat
