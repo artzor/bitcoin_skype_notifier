@@ -14,10 +14,6 @@ Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
 
-# logging.basicConfig()
-# logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
-
-
 class Subscriber(Base):
     __tablename__ = 'subscribers'
 
@@ -67,7 +63,7 @@ class BotBase:
         session.add(subscriber)
         session.commit()
 
-        self.scheduler.add_job(self.send_to_periodic_subscribers, 'interval', seconds=period, args=[user_id],
+        self.scheduler.add_job(self.send_to_periodic_subscribers, 'interval', minutes=period, args=[user_id],
                                id=user_id)
         self.subscribers[user_id] = {'repeat': period, 'sleep_from': 0, 'sleep_to': 0}
 
@@ -100,14 +96,14 @@ class BotBase:
 
     def user_get_subscription(self, user_id):
         session = self.session
-        subscriber = session.query(Subscriber).filter_by(user_id=user_id).first()
+        subscriber = session.query(Subscriber).filter(Subscriber.user_id == user_id).first()
 
         return subscriber.repeat if subscriber else 0
 
     def schedule_jobs(self):
         print('scheduling jobs...')
         for key, value in self.subscribers.items():
-            self.scheduler.add_job(self.send_to_periodic_subscribers, 'interval', seconds=value['repeat'], args=[key],
+            self.scheduler.add_job(self.send_to_periodic_subscribers, 'interval', minutes=value['repeat'], args=[key],
                                    id=key)
             print('scheduling {} every {}'.format(key, value['repeat']))
 
@@ -137,6 +133,18 @@ class BotBase:
         else:
             return False
 
+    def get_next_run_time(self, user_id):
+        t = self.scheduler.get_job(user_id).next_run_time
+        t = t.strftime('%H:%M:%S')
+        return t
+
+    def get_sleep_hours(self, user_id):
+        subscriber = self.session.query(Subscriber).filter(Subscriber.user_id == user_id).first()
+
+        sleep_from = subscriber.sleep_from
+        sleep_to = subscriber.sleep_to
+        return sleep_from, sleep_to
+
     # respond or distribute message to all subscribers
     def say(self, message, chat_id, bold=False, mono=False, colour=''):
         self.chatter.send_message(message, chat_id, bold, colour, mono)
@@ -146,7 +154,9 @@ class BotBase:
         pass
 
     def start_listening(self):  # start bot's event loop
-        self.chatter.start_listening()
+        while True:
+            self.chatter.cycle()
+        # self.chatter.start_listening()
 
     def send_to_periodic_subscribers(self, chat_id):
         if self.is_sleep_time(chat_id):

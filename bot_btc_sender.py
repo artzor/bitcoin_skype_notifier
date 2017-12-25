@@ -40,7 +40,6 @@ class BotBtcSender(BotBase):
         prices = self.get_crypto_prices()
         self.say(dt + prices, chat_id=respond_to, mono=True)
 
-
     def get_crypto_prices(self):
         price = self.get_coinmarketcap_prices()
         return price

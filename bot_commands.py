@@ -19,7 +19,8 @@ class BotCommandSub(BotCommandBase):
                 period = self.bot.user_get_subscription(self.message_source)
 
                 if period:
-                    return "'{}' is subscribed to receive updates every {} seconds.".format(self.message_source, period)
+                    return "'{}' is subscribed to receive updates every {} minutes. Next run: {}".format \
+                        (self.message_source, period, self.bot.get_next_run_time(self.message_source))
                 else:
                     return "'{}' is not subscribed.".format(self.message_source)
 
@@ -49,6 +50,10 @@ class BotCommandSleep(BotCommandBase):
         try:
             if not self.bot.subscribers.get(self.message_source):
                 return 'User {} is not subscribed. Use sub command to subscribe first.'.format(self.message_source)
+
+            if len(self.args) == 0:
+                sleep_from, sleep_to = self.bot.get_sleep_hours(self.message_source)
+                return 'Sleeping from {} to {}'.format(sleep_from, sleep_to)
 
             sleep_times = self.args[0].split('..')
 

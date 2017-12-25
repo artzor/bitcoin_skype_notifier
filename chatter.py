@@ -21,6 +21,9 @@ class ChatterBase:
     def start_listening(self):
         pass
 
+    def cycle(self):
+        pass
+
 
 class MySkype(SkypeEventLoop):
 
@@ -58,6 +61,9 @@ class ChatterSkype(ChatterBase):
 
     def start_listening(self):
         self.sk.loop()
+
+    def cycle(self):
+        self.sk.cycle()
 
     def set_new_message_event(self, event_method):
         self.sk.new_message_event = event_method
