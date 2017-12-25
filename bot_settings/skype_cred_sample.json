@@ -1,0 +1,5 @@
+{
+    "login": "your_skype_login",
+    "pwd" : "your_skype_password",
+    "_comment": "rename this file to skype_cred.json and put your bot's account login and password"
+}
