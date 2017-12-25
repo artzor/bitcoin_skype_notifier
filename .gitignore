@@ -3,3 +3,4 @@ bot_settings/skype_token.txt
 .idea/.*
 __pycache__/*
 user_data.db
+bot_settings/skype_cred.json
